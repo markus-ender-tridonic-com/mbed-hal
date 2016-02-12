@@ -19,6 +19,19 @@
 #include <stdint.h>
 #include "device.h"
 
+#ifdef TARGET_LIKE_STM32F0
+    // 16 bits timer used for Ticker
+	#define TICKER_TIME_MASK	0xFFFF			// mask for 16bit timer
+	#define TICKER_PAST_TOLERANCE	TICKER_TIME_MASK - 0xfff	// 4ms tolerance used to determine hit time events
+	#define TICKER_FUTURE_TOLERANCE	0x1		// execute also events in near future
+	#define TICKER_EXPECT_ISR_DELAY	0xFFF		// 4ms tolerated delay for finishing the ticker isr; used to re-insert a periodic event
+#else
+	#define TICKER_TIME_MASK	0xFFFFFFFF		// 32bit timer
+	#define TICKER_PAST_TOLERANCE	TICKER_TIME_MASK - 0x1FFF	// 8ms tolerance used to determine hit time events
+	#define TICKER_FUTURE_TOLERANCE	0x10		// execute also events in near future
+	#define TICKER_EXPECT_ISR_DELAY	0x1FFF		// 8ms tolerated delay for finishing the ticker isr; used to re-insert a periodic event
+#endif
+
 typedef uint32_t timestamp_t;
 
 /** Ticker's event structure
